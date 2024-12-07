@@ -2,7 +2,9 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json ./
+
+RUN npm install
 
 COPY . .
 ENTRYPOINT ["sh", "./entrypoint.sh"] 
