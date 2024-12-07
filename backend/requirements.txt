@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-multipart
+celery
+redis
+wordcloud
+jieba
+pydantic-settings 
