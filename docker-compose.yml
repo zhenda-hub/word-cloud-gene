@@ -32,6 +32,8 @@ services:
       - uploaded_files:/app/uploads
     env_file:
       - .env
+    deploy:
+      replicas: 2
     command: celery -A app.celery_app worker --loglevel=info
 
 volumes:
