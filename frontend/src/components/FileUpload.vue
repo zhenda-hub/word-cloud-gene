@@ -136,13 +136,30 @@ const checkTaskStatus = async () => {
 }
 
 // 下载图片
-const downloadImage = () => {
-  const link = document.createElement('a')
-  link.href = wordcloudUrl.value
-  link.download = 'wordcloud.png'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+const downloadImage = async () => {
+  try {
+    // 使用 axios 获取图片数据
+    const response = await axios.get(`${API_URL}/uploads/${wordcloudUrl.value.split('/').pop()}`, {
+      responseType: 'blob'  // 重要：指定响应类型为 blob
+    })
+    
+    // 创建 Blob URL
+    const blob = new Blob([response.data])
+    const url = window.URL.createObjectURL(blob)
+    
+    // 创建临时下载链接
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'wordcloud.png'  // 设置下载文件名
+    document.body.appendChild(link)
+    link.click()
+    
+    // 清理
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    ElMessage.error('下载失败')
+  }
 }
 </script>
 
