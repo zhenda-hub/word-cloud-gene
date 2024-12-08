@@ -64,7 +64,7 @@
                 v-model="inputText"
                 type="textarea"
                 :rows="6"
-                placeholder="在此输入要生成词云的文本..."
+                placeholder="在此��入要生成词云的文本..."
               />
               <el-button 
                 type="primary" 
@@ -290,24 +290,51 @@
   background-color: rgba(0, 0, 0, 0.9);
 }
 
+:deep(.el-image-viewer__close) {
+  position: absolute !important;
+  top: 40px;
+  right: 40px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  color: #fff;
+  z-index: 10000;
+  cursor: pointer;
+
+  &:hover {
+    color: #409EFF;
+  }
+}
+
 :deep(.el-image-viewer__btn) {
-  position: relative;
+  position: absolute !important;
+  z-index: 10000;
+  opacity: 0.8;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+:deep(.el-image-viewer__prev) {
+  left: 40px;
+}
+
+:deep(.el-image-viewer__next) {
+  right: 40px;
+}
+
+:deep(.el-image-viewer__actions) {
+  position: absolute !important;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
   z-index: 10000;
 }
 
 :deep(.el-image-viewer__img) {
-  position: relative;
-  z-index: 10000;
-}
-
-:deep(.el-image-viewer__actions) {
-  position: relative;
-  z-index: 10000;
-}
-
-:deep(.el-image-viewer__close) {
-  position: relative;
-  z-index: 10000;
+  z-index: 9999;
 }
 
 :deep(.el-tabs__item) {
