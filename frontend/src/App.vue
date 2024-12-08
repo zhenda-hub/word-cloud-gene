@@ -1,17 +1,19 @@
 <script setup>
-import FileUpload from './components/FileUpload.vue'
+import WordCloudGenerator from './components/WordCloudGenerator.vue'
 </script>
 
 <template>
-  <FileUpload />
+  <WordCloudGenerator />
 </template>
 
 <style>
+body {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  margin-top: 60px;
+  height: 100vh;
+  background-color: var(--el-bg-color-page);
 }
 </style>
