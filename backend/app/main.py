@@ -79,3 +79,20 @@ async def get_all_tasks():
         return {"error": str(e)}
         
     return tasks 
+
+@app.get("/api/redis/info")
+async def get_redis_info():
+    try:
+        redis_client = celery_app.backend.client
+        return {
+            "keys": {
+                key.decode(): redis_client.type(key).decode()
+                for key in redis_client.keys("*")
+            },
+            "tasks": {
+                key.decode().replace("celery-task-meta-", ""): redis_client.get(key).decode()
+                for key in redis_client.keys("celery-task-meta-*")
+            }
+        }
+    except Exception as e:
+        return {"error": str(e)}
