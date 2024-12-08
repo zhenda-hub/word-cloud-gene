@@ -96,3 +96,22 @@ async def get_redis_info():
         }
     except Exception as e:
         return {"error": str(e)}
+
+@app.delete("/api/tasks/{task_id}")
+async def delete_task(task_id: str):
+    try:
+        # 从 Redis 中删除任务状态
+        redis_client = celery_app.backend.client
+        task_key = f'celery-task-meta-{task_id}'
+        redis_client.delete(task_key)
+        
+        # 如果有对应的词云图文件，也需要删除
+        task_result = celery_app.AsyncResult(task_id)
+        if task_result.result and 'image_path' in task_result.result:
+            image_path = os.path.join(settings.UPLOAD_FOLDER, task_result.result['image_path'])
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        
+        return {"status": "success", "message": "Task deleted"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}

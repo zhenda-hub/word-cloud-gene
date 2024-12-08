@@ -64,7 +64,7 @@
                 v-model="inputText"
                 type="textarea"
                 :rows="6"
-                placeholder="在此��入要生成词云的文本..."
+                placeholder="在此输入要生成词云的文本..."
               />
               <el-button 
                 type="primary" 
@@ -568,10 +568,18 @@ const handleTextSubmit = async () => {
 // 删除任务
 const deleteTask = async (task) => {
   try {
+    // 确保 taskId 存在
+    if (!task.taskId) {
+      ElMessage.error('任务ID不存在')
+      return
+    }
+    
     await axios.delete(`${API_URL}/api/tasks/${task.taskId}`)
-    await refreshTasks()
+    // 从本地列表中移除该任务
+    tasks.value = tasks.value.filter(t => t.taskId !== task.taskId)
     ElMessage.success('任务已删除')
   } catch (error) {
+    console.error('Delete task error:', error)
     ElMessage.error('删除任务失败')
   }
 }
