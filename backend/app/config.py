@@ -1,16 +1,11 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    # 从环境变量获取的配置
-    REDIS_URL: str  # 移除默认值，强制从环境变量获取
-
-    # 硬编码的配置
+    # Redis配置
+    REDIS_URL: str = "redis://redis:6379/0"  # 使用 Docker Compose 中的服务名作为主机名
+    
+    # 文件上传配置
     UPLOAD_FOLDER: str = "./uploads"
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
-
-    # model_config = {
-    #     'env_file': '.env',
-    #     'env_file_encoding': 'utf-8'
-    # }
 
 settings = Settings()
