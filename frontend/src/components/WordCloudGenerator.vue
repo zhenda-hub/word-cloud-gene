@@ -1,386 +1,207 @@
+
 <template>
   <div class="app-container">
-    <!-- 左侧操作区 -->
-    <div class="left-panel">
-      <el-card class="upload-card">
-        <template #header>
-          <div class="panel-header">
-            <h2>词云图生成器</h2>
-            <el-button type="primary" @click="refreshTasks">
-              <el-icon><refresh /></el-icon>
-              刷新
-            </el-button>
-          </div>
-        </template>
+    <el-row :gutter="20">
+      <!-- 左侧操作区 -->
+      <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="6">
+        <div class="left-panel">
+          <el-card class="upload-card">
+            <template #header>
+              <div class="panel-header">
+                <h2>词云图生成器</h2>
+                <el-button type="primary" @click="refreshTasks">
+                  <el-icon><refresh /></el-icon>
+                  刷新
+                </el-button>
+              </div>
+            </template>
 
-        <!-- 统计信息 -->
-        <div class="statistics">
-          <el-row :gutter="20">
-            <el-col :span="8">
-              <el-statistic title="总任务" :value="statistics.total">
-                <template #suffix>个</template>
-              </el-statistic>
-            </el-col>
-            <el-col :span="8">
-              <el-statistic title="处理中" :value="statistics.processing" value-style="color: #409eff">
-                <template #suffix>个</template>
-              </el-statistic>
-            </el-col>
-            <el-col :span="8">
-              <el-statistic title="已完成" :value="statistics.completed" value-style="color: #67c23a">
-                <template #suffix>个</template>
-              </el-statistic>
-            </el-col>
-          </el-row>
+            <!-- 统计信息 -->
+            <div class="statistics">
+              <el-row :gutter="20">
+                <el-col :xs="8" :sm="8">
+                  <el-statistic title="总任务" :value="statistics.total">
+                    <template #suffix>个</template>
+                  </el-statistic>
+                </el-col>
+                <el-col :xs="8" :sm="8">
+                  <el-statistic title="处理中" :value="statistics.processing" value-style="color: #409eff">
+                    <template #suffix>个</template>
+                  </el-statistic>
+                </el-col>
+                <el-col :xs="8" :sm="8">
+                  <el-statistic title="已完成" :value="statistics.completed" value-style="color: #67c23a">
+                    <template #suffix>个</template>
+                  </el-statistic>
+                </el-col>
+              </el-row>
+            </div>
+
+            <!-- 上传区域 -->
+            <div class="upload-section">
+              <el-tabs type="border-card">
+                <el-tab-pane label="文件上传" name="upload">
+                  <el-upload
+                    class="upload-area"
+                    drag
+                    :action="`${API_URL}/api/upload`"
+                    :on-success="handleSuccess"
+                    :on-error="handleError"
+                    :before-upload="beforeUpload"
+                    :show-file-list="false"
+                  >
+                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                    <div class="el-upload__text">
+                      拖拽文件到此处或 <em>点击上传</em>
+                    </div>
+                    <template #tip>
+                      <div class="el-upload__tip">
+                        支持 txt、doc、docx、pdf 格式，不超过 10MB
+                      </div>
+                    </template>
+                  </el-upload>
+                </el-tab-pane>
+
+                <el-tab-pane label="文本输入" name="text">
+                  <el-input
+                    v-model="inputText"
+                    type="textarea"
+                    :rows="6"
+                    placeholder="在此输入要生成词云的文本..."
+                  />
+                  <el-button 
+                    type="primary" 
+                    @click="handleTextSubmit"
+                    :loading="isSubmitting"
+                    style="margin-top: 15px; width: 100%"
+                  >
+                    生成词云图
+                  </el-button>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </el-card>
         </div>
+      </el-col>
 
-        <!-- 上传区域 -->
-        <div class="upload-section">
-          <el-tabs type="border-card">
-            <el-tab-pane label="文件上传" name="upload">
-              <el-upload
-                class="upload-area"
-                drag
-                :action="`${API_URL}/api/upload`"
-                :on-success="handleSuccess"
-                :on-error="handleError"
-                :before-upload="beforeUpload"
-                :show-file-list="false"
-              >
-                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                <div class="el-upload__text">
-                  拖拽文件到此处或 <em>点击上传</em>
+      <!-- 右侧任务列表 -->
+      <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="18">
+        <div class="right-panel">
+          <el-card>
+            <template #header>
+              <div class="panel-header">
+                <div class="header-left">
+                  <h3>任务列表</h3>
+                  <el-tag>{{ tasks.length }} 个任务</el-tag>
                 </div>
-                <template #tip>
-                  <div class="el-upload__tip">
-                    支持 txt、doc、docx、pdf 格式，不超过 10MB
-                  </div>
-                </template>
-              </el-upload>
-            </el-tab-pane>
+                <div class="header-right">
+                  <el-radio-group v-model="filterStatus" size="small">
+                    <el-radio-button label="">全部</el-radio-button>
+                    <el-radio-button label="PENDING">等待中</el-radio-button>
+                    <el-radio-button label="PROGRESS">处理中</el-radio-button>
+                    <el-radio-button label="SUCCESS">已完成</el-radio-button>
+                    <el-radio-button label="FAILURE">失败</el-radio-button>
+                  </el-radio-group>
+                </div>
+              </div>
+            </template>
 
-            <el-tab-pane label="文本输入" name="text">
-              <el-input
-                v-model="inputText"
-                type="textarea"
-                :rows="6"
-                placeholder="在此输入要生成词云的文本..."
-              />
-              <el-button 
-                type="primary" 
-                @click="handleTextSubmit"
-                :loading="isSubmitting"
-                style="margin-top: 15px; width: 100%"
-              >
-                生成词云图
-              </el-button>
-            </el-tab-pane>
-          </el-tabs>
+            <!-- 任务列表 -->
+            <div class="table-responsive">
+              <el-table :data="filteredTasks" style="width: 100%">
+                <el-table-column 
+                  label="文件名" 
+                  prop="filename" 
+                  min-width="120"
+                  show-overflow-tooltip 
+                />
+                <el-table-column 
+                  label="状态" 
+                  :width="isMobile ? 80 : 100"
+                  align="center"
+                >
+                  <template #default="{ row }">
+                    <el-tag :type="getStatusType(row.status)" size="small">
+                      {{ row.status }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column 
+                  label="进度" 
+                  :width="isMobile ? 120 : 200"
+                  align="center"
+                >
+                  <template #default="{ row }">
+                    <el-progress 
+                      :percentage="row.progress" 
+                      :status="getProgressStatus(row.status)"
+                      :stroke-width="isMobile ? 10 : 15"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column 
+                  label="预览" 
+                  :width="isMobile ? 60 : 100"
+                  align="center"
+                >
+                  <template #default="{ row }">
+                    <el-image
+                      v-if="row.imageUrl"
+                      :src="row.imageUrl"
+                      :preview-src-list="[row.imageUrl]"
+                      fit="cover"
+                      class="preview-image"
+                      :class="{ 'mobile-preview': isMobile }"
+                    >
+                      <template #error>
+                        <div class="image-error">
+                          <el-icon><picture-filled /></el-icon>
+                        </div>
+                      </template>
+                    </el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column 
+                  label="操作" 
+                  :width="isMobile ? 120 : 200"
+                  align="center"
+                >
+                  <template #default="{ row }">
+                    <el-space :size="isMobile ? 4 : 10">
+                      <el-button
+                        v-if="row.imageUrl"
+                        type="primary"
+                        :size="isMobile ? 'small' : 'default'"
+                        @click="downloadImage(row)"
+                      >
+                        <el-icon><download /></el-icon>
+                      </el-button>
+                      <el-button
+                        v-if="row.status === 'FAILURE'"
+                        type="warning"
+                        :size="isMobile ? 'small' : 'default'"
+                        @click="retryTask(row)"
+                      >
+                        <el-icon><refresh-right /></el-icon>
+                      </el-button>
+                      <el-button
+                        type="danger"
+                        :size="isMobile ? 'small' : 'default'"
+                        @click="deleteTask(row)"
+                      >
+                        <el-icon><delete /></el-icon>
+                      </el-button>
+                    </el-space>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </el-card>
         </div>
-      </el-card>
-    </div>
-
-    <!-- 右侧任务列表 -->
-    <div class="right-panel">
-      <el-card>
-        <template #header>
-          <div class="panel-header">
-            <div class="header-left">
-              <h3>任务列表</h3>
-              <el-tag>{{ tasks.length }} 个任务</el-tag>
-            </div>
-            <div class="header-right">
-              <el-radio-group v-model="filterStatus" size="small">
-                <el-radio-button label="">全部</el-radio-button>
-                <el-radio-button label="PENDING">等待中</el-radio-button>
-                <el-radio-button label="PROGRESS">处理中</el-radio-button>
-                <el-radio-button label="SUCCESS">已完成</el-radio-button>
-                <el-radio-button label="FAILURE">失败</el-radio-button>
-              </el-radio-group>
-            </div>
-          </div>
-        </template>
-
-        <!-- 任务列表 -->
-        <el-table :data="filteredTasks" style="width: 100%">
-          <el-table-column label="文件名" prop="filename" min-width="120" />
-          <el-table-column label="状态" width="100">
-            <template #default="{ row }">
-              <el-tag :type="getStatusType(row.status)">
-                {{ row.status }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="进度" width="200">
-            <template #default="{ row }">
-              <el-progress 
-                :percentage="row.progress" 
-                :status="getProgressStatus(row.status)"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column label="预览" width="100">
-            <template #default="{ row }">
-              <el-image
-                v-if="row.imageUrl"
-                :src="row.imageUrl"
-                :preview-src-list="[row.imageUrl]"
-                fit="cover"
-                class="preview-image"
-              >
-                <template #error>
-                  <div class="image-error">
-                    <el-icon><picture-filled /></el-icon>
-                  </div>
-                </template>
-              </el-image>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="200">
-            <template #default="{ row }">
-              <el-button-group>
-                <el-button
-                  v-if="row.imageUrl"
-                  type="primary"
-                  size="small"
-                  @click="downloadImage(row)"
-                >
-                  <el-icon><download /></el-icon>
-                </el-button>
-                <el-button
-                  v-if="row.status === 'FAILURE'"
-                  type="warning"
-                  size="small"
-                  @click="retryTask(row)"
-                >
-                  <el-icon><refresh-right /></el-icon>
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="deleteTask(row)"
-                >
-                  <el-icon><delete /></el-icon>
-                </el-button>
-              </el-button-group>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
-    </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
-
-<style scoped>
-.app-container {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  height: calc(100vh - 40px);
-  box-sizing: border-box;
-  background-color: var(--el-bg-color-page);
-}
-
-.left-panel {
-  width: 400px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.left-panel .el-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.left-panel :deep(.el-card__body) {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.right-panel {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.right-panel .el-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.right-panel :deep(.el-card__body) {
-  flex: 1;
-  overflow: auto;
-  padding: 0;
-}
-
-.right-panel .el-table {
-  height: 100%;
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.statistics {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: var(--el-bg-color-page);
-  border-radius: 4px;
-}
-
-.upload-section {
-  margin-top: 20px;
-}
-
-.preview-image {
-  width: 50px;
-  height: 50px;
-  border-radius: 4px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.image-error {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--el-bg-color-page);
-  color: var(--el-text-color-secondary);
-}
-
-.el-button-group {
-  display: flex;
-  gap: 5px;
-}
-
-:deep(.el-image-viewer__wrapper) {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-}
-
-:deep(.el-image-viewer__mask) {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9998;
-  background-color: rgba(0, 0, 0, 0.9);
-}
-
-:deep(.el-image-viewer__close) {
-  position: absolute !important;
-  top: 40px;
-  right: 40px;
-  width: 40px;
-  height: 40px;
-  font-size: 24px;
-  color: #fff;
-  z-index: 10000;
-  cursor: pointer;
-
-  &:hover {
-    color: #409EFF;
-  }
-}
-
-:deep(.el-image-viewer__btn) {
-  position: absolute !important;
-  z-index: 10000;
-  opacity: 0.8;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
-:deep(.el-image-viewer__prev) {
-  left: 40px;
-}
-
-:deep(.el-image-viewer__next) {
-  right: 40px;
-}
-
-:deep(.el-image-viewer__actions) {
-  position: absolute !important;
-  left: 50%;
-  bottom: 30px;
-  transform: translateX(-50%);
-  z-index: 10000;
-}
-
-:deep(.el-image-viewer__img) {
-  z-index: 9999;
-}
-
-:deep(.el-tabs__item) {
-  color: var(--el-text-color-regular) !important;
-  &.is-active {
-    color: var(--el-text-color-primary) !important;
-    font-weight: bold;
-  }
-  &:hover {
-    color: var(--el-text-color-primary) !important;
-  }
-}
-
-:deep(.el-tabs__nav-wrap::after) {
-  display: none;
-}
-
-:deep(.el-table__fixed-right) {
-  position: static !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-:deep(.el-table__fixed-right-patch) {
-  display: none !important;
-}
-
-:deep(.el-button),
-:deep(.el-button-group),
-:deep(.el-table__fixed-right),
-:deep(.cell) {
-  position: static !important;
-  z-index: 1 !important;
-}
-
-:deep(.el-tabs--border-card) {
-  border: none;
-  box-shadow: none;
-  background: transparent;
-}
-
-:deep(.el-tabs--border-card > .el-tabs__header) {
-  background-color: transparent;
-  border: none;
-}
-</style> 
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -392,6 +213,16 @@ const inputText = ref('')
 const isSubmitting = ref(false)
 const filterStatus = ref('')
 const tasks = ref([])
+
+// 检测是否为移动设备
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth <= 768
+})
 
 // 统计信息
 const statistics = computed(() => {
@@ -568,14 +399,12 @@ const handleTextSubmit = async () => {
 // 删除任务
 const deleteTask = async (task) => {
   try {
-    // 确保 taskId 存在
     if (!task.taskId) {
       ElMessage.error('任务ID不存在')
       return
     }
     
     await axios.delete(`${API_URL}/api/tasks/${task.taskId}`)
-    // 从本地列表中移除该任务
     tasks.value = tasks.value.filter(t => t.taskId !== task.taskId)
     ElMessage.success('任务已删除')
   } catch (error) {
@@ -601,4 +430,135 @@ const retryTask = async (task) => {
 onMounted(() => {
   refreshTasks()
 })
-</script> 
+</script>
+
+<style scoped>
+.app-container {
+  padding: var(--el-main-padding);
+  min-height: calc(100vh - var(--el-main-padding) * 2);
+  background-color: var(--el-bg-color-page);
+}
+
+.left-panel,
+.right-panel {
+  margin-bottom: 20px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-right .el-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.statistics {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--el-bg-color-page);
+  border-radius: var(--el-border-radius-base);
+}
+
+.upload-section {
+  margin-top: 20px;
+}
+
+.preview-image {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--el-border-radius-base);
+  cursor: pointer;
+}
+
+.mobile-preview {
+  width: 40px;
+  height: 40px;
+}
+
+.image-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--el-bg-color-page);
+  color: var(--el-text-color-secondary);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .el-radio-group {
+    padding-bottom: 5px;
+  }
+
+  .statistics {
+    padding: 10px;
+  }
+
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-button) {
+    padding: 6px;
+  }
+}
+
+/* 保持图片预览的样式 */
+:deep(.el-image-viewer__wrapper) {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+:deep(.el-image-viewer__mask) {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* 优化表格在移动端的显示 */
+:deep(.el-table__header) {
+  th {
+    padding: 8px 0;
+  }
+}
+
+:deep(.el-table__body) {
+  td {
+    padding: 8px 0;
+  }
+}
+</style>
