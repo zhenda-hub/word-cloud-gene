@@ -149,7 +149,9 @@
                       v-if="row.imageUrl"
                       :src="row.imageUrl"
                       :preview-src-list="[row.imageUrl]"
+                      :initial-index="0"
                       fit="cover"
+                      :preview-teleported="true"
                       class="preview-image"
                       :class="{ 'mobile-preview': isMobile }"
                     >
@@ -536,17 +538,46 @@ onMounted(() => {
   }
 }
 
-/* 保持图片预览的样式 */
+/* 图片预览样式 */
 :deep(.el-image-viewer__wrapper) {
-  position: fixed;
+  position: fixed !important;
   inset: 0;
-  z-index: 2000;
+  z-index: 2100 !important;
 }
 
 :deep(.el-image-viewer__mask) {
-  position: fixed;
+  position: fixed !important;
   inset: 0;
+  z-index: 2099 !important;
   background-color: rgba(0, 0, 0, 0.9);
+}
+
+:deep(.el-image-viewer__btn) {
+  position: absolute !important;
+  z-index: 2101 !important;
+}
+
+:deep(.el-image-viewer__close) {
+  top: 40px !important;
+  right: 40px !important;
+  z-index: 2102 !important;
+}
+
+:deep(.el-image-viewer__canvas) {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2101 !important;
+}
+
+:deep(.el-image-viewer__actions) {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 30px !important;
+  transform: translateX(-50%) !important;
+  z-index: 2102 !important;
 }
 
 /* 优化表格在移动端的显示 */
