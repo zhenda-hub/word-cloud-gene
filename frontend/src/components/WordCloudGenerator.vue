@@ -135,8 +135,11 @@
                     <el-progress 
                       :percentage="row.progress" 
                       :status="getProgressStatus(row.status)"
-                      :stroke-width="isMobile ? 10 : 15"
-                    />
+                    >
+                      <template #default="{ percentage }">
+                        <span>{{ percentage }}% {{ row.step || '' }}</span>
+                      </template>
+                    </el-progress>
                   </template>
                 </el-table-column>
                 <el-table-column 
@@ -300,7 +303,8 @@ const handleSuccess = (response) => {
       filename: response.filename,
       status: 'PENDING',
       progress: 0,
-      imageUrl: null
+      imageUrl: null,
+      step: ''
     }
     tasks.value = [...tasks.value, newTask]
     checkTaskStatus(response.task_id)
@@ -323,14 +327,15 @@ const checkTaskStatus = async (taskId) => {
 
     const task = tasks.value[taskIndex]
     task.status = response.data.status
+    task.progress = response.data.progress || 0
+    task.step = response.data.step
     
     if (response.data.status === 'SUCCESS') {
       task.imageUrl = `${API_URL}/uploads/${response.data.result.image_path}`
       task.progress = 100
       ElMessage.success(`${task.filename} 的词云图生成成功！`)
     } else if (['PENDING', 'PROGRESS'].includes(response.data.status)) {
-      task.progress = response.data.status === 'PROGRESS' ? 50 : 25
-      setTimeout(() => checkTaskStatus(taskId), 2000)
+      setTimeout(() => checkTaskStatus(taskId), 500)
     } else if (response.data.status === 'FAILURE') {
       task.progress = 0
       ElMessage.error(`${task.filename} 生成失败：${response.data.error}`)
@@ -385,7 +390,8 @@ const handleTextSubmit = async () => {
         filename: response.data.filename,
         status: 'PENDING',
         progress: 0,
-        imageUrl: null
+        imageUrl: null,
+        step: ''
       }
       tasks.value = [...tasks.value, newTask]
       checkTaskStatus(response.data.task_id)

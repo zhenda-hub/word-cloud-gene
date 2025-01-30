@@ -41,24 +41,31 @@ def generate_wordcloud(file_path: str):
 
         # 读取文件内容
         logger.info("读取文件内容")
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 10, 'step': '读取文件'})
         with open(file_path, 'r', encoding='utf-8') as f:
             text = f.read()
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 20, 'step': '读取文件完成'})
         
         # 使用结巴分词并过滤停用词
         logger.info("进行分词")
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 30, 'step': '分词处理'})
         word_list = list(jieba.cut(text))
         logger.info(f"分词前总词数: {len(word_list)}")
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 40, 'step': '分词完成'})
         
         # 过滤停用词
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 50, 'step': '过滤停用词'})
         filtered_words = [
             word for word in word_list 
             if word.strip() and word not in STOP_WORDS
         ]
         logger.info(f"过滤后词数: {len(filtered_words)}")
         words = ' '.join(filtered_words)
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 60, 'step': '过滤完成'})
         
         # 生成词云图
         logger.info("生成词云图")
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 70, 'step': '生成词云'})
         wc = WordCloud(
             font_path='/usr/share/fonts/wqy-microhei/wqy-microhei.ttc',
             width=800,
@@ -67,8 +74,8 @@ def generate_wordcloud(file_path: str):
             background_color='white',
             stopwords=STOP_WORDS
         )
-        
         wc.generate(words)
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 80, 'step': '生成词云完成'})
         
         # 使用配置中的上传目录
         output_filename = Path(file_path).stem + '_wordcloud.png'
@@ -76,7 +83,9 @@ def generate_wordcloud(file_path: str):
         
         # 保存词云图
         logger.info(f"保存词云图到: {output_path}")
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 90, 'step': '保存图片'})
         wc.to_file(output_path)
+        generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 95, 'step': '保存完成'})
         
         # 返回相对路径
         relative_path = os.path.basename(output_path)
@@ -91,4 +100,4 @@ def generate_wordcloud(file_path: str):
         return {
             "status": "error",
             "error": str(e)
-        } 
+        }

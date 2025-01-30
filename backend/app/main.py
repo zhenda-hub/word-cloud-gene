@@ -45,7 +45,14 @@ async def get_task_status(task_id: str):
         return {"status": "FAILURE", "error": str(task.result)}
     elif task.state == 'SUCCESS':
         return {"status": "SUCCESS", "result": task.result}
-    return {"status": task.state, "result": None}
+    elif task.state == 'PROGRESS':
+        return {
+            "status": "PROGRESS",
+            "result": None,
+            "progress": task.info.get('progress', 0),
+            "step": task.info.get('step', '')
+        }
+    return {"status": task.state, "result": None, "progress": 0}
 
 @app.get("/api/tasks/inspect")
 async def inspect_tasks():
