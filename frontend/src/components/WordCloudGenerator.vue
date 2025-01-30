@@ -539,45 +539,47 @@ onMounted(() => {
 }
 
 /* 图片预览样式 */
-:deep(.el-image-viewer__wrapper) {
-  position: fixed !important;
-  inset: 0;
-  z-index: 2100 !important;
-}
+:deep(.el-overlay) {
+  .el-image-viewer__wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+  }
 
-:deep(.el-image-viewer__mask) {
-  position: fixed !important;
-  inset: 0;
-  z-index: 2099 !important;
-  background-color: rgba(0, 0, 0, 0.9);
-}
+  .el-image-viewer__mask {
+    position: fixed;
+    inset: 0;
+    z-index: 2099;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
 
-:deep(.el-image-viewer__btn) {
-  position: absolute !important;
-  z-index: 2101 !important;
-}
+  .el-image-viewer__btn {
+    position: absolute;
+    z-index: 2101;
+  }
 
-:deep(.el-image-viewer__close) {
-  top: 40px !important;
-  right: 40px !important;
-  z-index: 2102 !important;
-}
+  .el-image-viewer__close {
+    top: 40px;
+    right: 40px;
+    z-index: 2102;
+  }
 
-:deep(.el-image-viewer__canvas) {
-  position: absolute !important;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 2101 !important;
-}
+  .el-image-viewer__canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2101;
+  }
 
-:deep(.el-image-viewer__actions) {
-  position: absolute !important;
-  left: 50% !important;
-  bottom: 30px !important;
-  transform: translateX(-50%) !important;
-  z-index: 2102 !important;
+  .el-image-viewer__actions {
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    z-index: 2102;
+  }
 }
 
 /* 优化表格在移动端的显示 */
