@@ -32,6 +32,12 @@ services:
       - uploaded_files:/app/uploads
     env_file:
       - .env
+    # deploy: 定义服务的部署和运行时配置
+    # replicas: 指定要运行的容器副本数量，这里设置为2表示会同时运行2个相同的容器实例
+    # 适用场景：
+    # 1. 高可用：某个实例故障时，另一个实例仍能提供服务
+    # 2. 负载均衡：请求可以分散到多个实例上
+    # 3. 零停机部署：更新时可以逐个替换实例
     deploy:
       replicas: 2
     command: celery -A app.celery_app worker --loglevel=info
