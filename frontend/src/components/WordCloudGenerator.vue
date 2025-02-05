@@ -45,7 +45,7 @@
                     class="upload-area"
                     drag
                     :action="`${API_URL}/api/upload`"
-                    :on-success="handleSuccess"
+                    :on-success="handleUploadSuccess"
                     :on-error="handleError"
                     :before-upload="beforeUpload"
                     :show-file-list="false"
@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 
@@ -218,6 +218,11 @@ const inputText = ref('')
 const isSubmitting = ref(false)
 const filterStatus = ref('')
 const tasks = ref([])
+
+// 监听tasks变化，自动保存到localStorage
+watch(tasks, (newTasks) => {
+  localStorage.setItem('wordcloud_tasks', JSON.stringify(newTasks))
+}, { deep: true })
 
 // 检测是否为移动设备
 const isMobile = computed(() => {
@@ -262,15 +267,19 @@ const getProgressStatus = (status) => {
   return ''
 }
 
-// 刷新任务列表
-const refreshTasks = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/api/tasks/all`)
-    tasks.value = response.data
-  } catch (error) {
-    ElMessage.error('获取任务列表失败')
+// 初始化时获取任务列表
+onMounted(() => {
+  const savedTasks = localStorage.getItem('wordcloud_tasks')
+  if (savedTasks) {
+    tasks.value = JSON.parse(savedTasks)
+    // 对于未完成的任务，继续检查状态
+    tasks.value.forEach(task => {
+      if (['PENDING', 'PROGRESS'].includes(task.status)) {
+        checkTaskStatus(task.taskId)
+      }
+    })
   }
-}
+})
 
 // 上传前验证
 const beforeUpload = (file) => {
@@ -296,7 +305,7 @@ const beforeUpload = (file) => {
 }
 
 // 上传成功回调
-const handleSuccess = (response) => {
+const handleUploadSuccess = (response) => {
   if (response.task_id) {
     const newTask = {
       taskId: response.task_id,
@@ -426,18 +435,24 @@ const retryTask = async (task) => {
   try {
     const response = await axios.post(`${API_URL}/api/tasks/${task.taskId}/retry`)
     if (response.data.task_id) {
-      await refreshTasks()
+      tasks.value = tasks.value.map(t => {
+        if (t.taskId === task.taskId) {
+          return {
+            ...t,
+            status: 'PENDING',
+            progress: 0,
+            step: ''
+          }
+        }
+        return t
+      })
+      checkTaskStatus(task.taskId)
       ElMessage.success('任务已重新提交')
     }
   } catch (error) {
     ElMessage.error('重试任务失败')
   }
 }
-
-// 初始化时获取任务列表
-onMounted(() => {
-  refreshTasks()
-})
 </script>
 
 <style scoped>
