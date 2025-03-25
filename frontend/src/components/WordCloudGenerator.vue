@@ -66,7 +66,7 @@
                     </div>
                     <template #tip>
                       <div class="el-upload__tip">
-                        支持 txt、doc、docx、pdf 格式，不超过 10MB
+                        文件大小不超过 1GB
                       </div>
                     </template>
                   </el-upload>
@@ -306,9 +306,9 @@ onMounted(() => {
 
 // 上传前验证
 const beforeUpload = (file) => {
-  const maxSize = 10 * 1024 * 1024 // 10MB
+  const maxSize = 1024 * 1024 * 1024 // 1GB
   if (file.size > maxSize) {
-    ElMessage.error('文件大小不能超过 10MB！')
+    ElMessage.error('文件大小不能超过 1GB！')
     return false
   }
   

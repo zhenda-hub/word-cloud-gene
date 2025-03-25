@@ -21,9 +21,12 @@ app.add_middleware(
 
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_FOLDER), name="uploads")
 
+# 设置文件大小限制为 1GB
+MAX_FILE_SIZE = 1024 * 1024 * 1024
+
 @app.post("/api/upload")
 async def upload_file(
-    file: UploadFile = File(...),
+    file: UploadFile = File(..., max_length=MAX_FILE_SIZE),
     stop_words: str = Form(default="")
 ):
     try:
