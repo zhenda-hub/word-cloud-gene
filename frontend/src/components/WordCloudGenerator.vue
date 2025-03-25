@@ -37,6 +37,15 @@
               </el-row>
             </div>
 
+            <!-- 停用词输入 -->
+            <el-form-item label="要忽略的词">
+              <el-input
+                v-model="stopWords"
+                type="text"
+                placeholder="输入要忽略的词，用逗号分隔"
+              />
+            </el-form-item>
+
             <!-- 上传区域 -->
             <div class="upload-section">
               <el-tabs v-model="activeTab" type="border-card">
@@ -49,6 +58,7 @@
                     :on-error="handleError"
                     :before-upload="beforeUpload"
                     :show-file-list="false"
+                    :http-request="customUpload"
                   >
                     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                     <div class="el-upload__text">
@@ -69,6 +79,7 @@
                     :rows="6"
                     placeholder="在此输入要生成词云的文本..."
                   />
+
                   <el-button 
                     type="primary" 
                     @click="handleTextSubmit"
@@ -216,6 +227,7 @@ import axios from 'axios'
 const API_URL = import.meta.env.VITE_API_URL
 const activeTab = ref('upload')
 const inputText = ref('')
+const stopWords = ref('')  // 停用词输入
 const isSubmitting = ref(false)
 const filterStatus = ref('')
 const tasks = ref([])
@@ -303,6 +315,20 @@ const beforeUpload = (file) => {
   }
   
   return true
+}
+
+// 自定义上传函数
+const customUpload = async (options) => {
+  try {
+    const formData = new FormData()
+    formData.append('file', options.file)
+    formData.append('stop_words', stopWords.value)
+
+    const response = await axios.post(`${API_URL}/api/upload`, formData)
+    options.onSuccess(response.data)
+  } catch (error) {
+    options.onError(error)
+  }
 }
 
 // 上传成功回调
@@ -397,6 +423,7 @@ const handleTextSubmit = async () => {
     const file = new File([blob], `text.txt`, { type: 'text/plain' })
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('stop_words', stopWords.value)
 
     const response = await axios.post(`${API_URL}/api/upload`, formData)
     if (response.data.task_id) {

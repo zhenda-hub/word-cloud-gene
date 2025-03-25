@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .celery_app import celery_app
@@ -22,7 +22,10 @@ app.add_middleware(
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_FOLDER), name="uploads")
 
 @app.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    stop_words: str = Form(default="")
+):
     try:
         # 确保上传目录存在
         os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
@@ -40,7 +43,14 @@ async def upload_file(file: UploadFile = File(...)):
             buffer.write(content)
             
         # 创建词云生成任务
-        task = celery_app.send_task("generate_wordcloud", args=[file_path], kwargs={})
+        # 处理停用词，以逗号分隔
+        custom_stop_words = [w.strip() for w in stop_words.split(',') if w.strip()]
+        
+        task = celery_app.send_task(
+            "generate_wordcloud",
+            args=[file_path],
+            kwargs={"custom_stop_words": custom_stop_words}
+        )
         
         return {"task_id": task.id, "filename": timestamped_filename}  # 返回带时间戳的文件名
     except Exception as e:

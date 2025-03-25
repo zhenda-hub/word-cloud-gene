@@ -27,10 +27,16 @@ STOP_WORDS = load_stop_words()
 
 
 @celery_app.task(name="generate_wordcloud")
-def generate_wordcloud(file_path: str):
+def generate_wordcloud(file_path: str, custom_stop_words: list[str] = None):
+    # 合并默认停用词和用户自定义停用词
+    stop_words = STOP_WORDS.copy()
+    if custom_stop_words:
+        stop_words.update(set(custom_stop_words))
     try:
         logger.info(f"开始处理文件: {file_path}")
         logger.info(f"当前停用词数量: {len(STOP_WORDS)}")
+
+
         
         # 确保文件存在
         if not os.path.exists(file_path):
@@ -77,7 +83,7 @@ def generate_wordcloud(file_path: str):
             height=400,
             colormap=real_color,
             background_color='white',
-            stopwords=STOP_WORDS
+            stopwords=stop_words
         )
         wc.generate(words)
         generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 80, 'step': '生成词云完成'})
