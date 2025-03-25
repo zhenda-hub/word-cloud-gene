@@ -138,6 +138,16 @@
                   </template>
                 </el-table-column>
                 <el-table-column 
+                  label="停用词" 
+                  min-width="150"
+                  show-overflow-tooltip
+                >
+                  <template #default="{ row }">
+                    <span v-if="row.stopWords">{{ row.stopWords }}</span>
+                    <span v-else class="text-gray">无</span>
+                  </template>
+                </el-table-column>
+                <el-table-column 
                   label="进度" 
                   :width="isMobile ? 120 : 200"
                   align="center"
@@ -340,7 +350,8 @@ const handleUploadSuccess = (response) => {
       status: 'PENDING',
       progress: 0,
       imageUrl: null,
-      step: ''
+      step: '',
+      stopWords: stopWords.value
     }
     tasks.value = [...tasks.value, newTask]
     checkTaskStatus(response.task_id)
@@ -489,6 +500,11 @@ const retryTask = async (task) => {
 </script>
 
 <style scoped>
+.text-gray {
+  color: #909399;
+  font-style: italic;
+}
+
 .app-container {
   padding: var(--el-main-padding);
   min-height: calc(100vh - var(--el-main-padding) * 2);

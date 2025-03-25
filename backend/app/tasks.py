@@ -35,8 +35,6 @@ def generate_wordcloud(file_path: str, custom_stop_words: list[str] = None):
     try:
         logger.info(f"开始处理文件: {file_path}")
         logger.info(f"当前停用词数量: {len(STOP_WORDS)}")
-
-
         
         # 确保文件存在
         if not os.path.exists(file_path):
@@ -100,13 +98,17 @@ def generate_wordcloud(file_path: str, custom_stop_words: list[str] = None):
         wc.to_file(output_path)
         generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 95, 'step': '保存完成'})
         
-        # 返回相对路径
+        # 返回相对路径和停用词信息
         relative_path = os.path.basename(output_path)
         logger.info(f"处理完成，返回路径: {relative_path}")
         
+        # 如果有自定义停用词，将其格式化为字符串
+        stop_words_text = ', '.join(custom_stop_words) if custom_stop_words else ''
+        
         return {
             "status": "success",
-            "image_path": relative_path
+            "image_path": relative_path,
+            "stop_words": stop_words_text
         }
     except Exception as e:
         logger.error(f"处理失败: {str(e)}", exc_info=True)
