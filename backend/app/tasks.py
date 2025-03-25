@@ -5,6 +5,7 @@ from wordcloud import WordCloud
 import os
 from pathlib import Path
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -66,13 +67,19 @@ def generate_wordcloud(file_path: str):
         # 生成词云图
         logger.info("生成词云图")
         generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 70, 'step': '生成词云'})
+        # 随机选择颜色方案和布局参数
+        color_maps = ['rainbow', 'viridis', 'plasma', 'inferno', 'magma', 'cividis']
+        real_color = random.choice(color_maps)
+        logger.info(f"选择颜色方案: {real_color}")
         wc = WordCloud(
             font_path='/usr/share/fonts/wqy-microhei/wqy-microhei.ttc',
             width=800,
             height=400,
-            colormap='rainbow',
+            colormap=real_color,
             background_color='white',
-            stopwords=STOP_WORDS
+            stopwords=STOP_WORDS,
+            prefer_horizontal=random.uniform(0.5, 1.0),  # 随机水平偏好
+            random_state=random.randint(1, 1000)  # 随机种子
         )
         wc.generate(words)
         generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 80, 'step': '生成词云完成'})
