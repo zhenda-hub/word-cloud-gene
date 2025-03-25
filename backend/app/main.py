@@ -6,6 +6,8 @@ from .config import settings
 import os
 from celery.result import AsyncResult
 from celery.app.control import Inspect
+from pathlib import Path
+import time
 
 app = FastAPI()
 
@@ -25,8 +27,14 @@ async def upload_file(file: UploadFile = File(...)):
         # 确保上传目录存在
         os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
         
+        # 为文件名添加时间戳
+        timestamp = time.strftime("%Y%m%d_%H%M%S")  # 格式：年月日时分秒
+        file_stem = Path(file.filename).stem
+        file_suffix = Path(file.filename).suffix
+        timestamped_filename = f"{file_stem}_{timestamp}{file_suffix}"
+        
         # 保存文件
-        file_path = os.path.join(settings.UPLOAD_FOLDER, file.filename)
+        file_path = os.path.join(settings.UPLOAD_FOLDER, timestamped_filename)
         with open(file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
@@ -34,7 +42,7 @@ async def upload_file(file: UploadFile = File(...)):
         # 创建词云生成任务
         task = celery_app.send_task("generate_wordcloud", args=[file_path], kwargs={})
         
-        return {"task_id": task.id, "filename": file.filename}
+        return {"task_id": task.id, "filename": timestamped_filename}  # 返回带时间戳的文件名
     except Exception as e:
         return {"error": str(e)}
 

@@ -77,15 +77,15 @@ def generate_wordcloud(file_path: str):
             height=400,
             colormap=real_color,
             background_color='white',
-            stopwords=STOP_WORDS,
-            prefer_horizontal=random.uniform(0.5, 1.0),  # 随机水平偏好
-            random_state=random.randint(1, 1000)  # 随机种子
+            stopwords=STOP_WORDS
         )
         wc.generate(words)
         generate_wordcloud.update_state(state='PROGRESS', meta={'progress': 80, 'step': '生成词云完成'})
         
         # 使用配置中的上传目录
-        output_filename = Path(file_path).stem + '_wordcloud.png'
+        input_file = Path(file_path)
+        input_stem = input_file.stem  # 这会包含时间戳
+        output_filename = f"{input_stem}.png"  # 使用相同的时间戳
         output_path = os.path.join(settings.UPLOAD_FOLDER, output_filename)
         
         # 保存词云图

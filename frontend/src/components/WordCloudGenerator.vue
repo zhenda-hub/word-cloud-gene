@@ -368,7 +368,10 @@ const downloadImage = async (task) => {
     
     const link = document.createElement('a')
     link.href = url
-    link.download = `${task.filename}_wordcloud.png`
+    // 使用带时间戳的文件名，去掉文本文件的后缀
+    console.log('task.filename', task.filename)
+    const fileNameWithoutExt = task.filename.replace(/\.[^.]+$/, '')
+    link.download = `${fileNameWithoutExt}.png`
     document.body.appendChild(link)
     link.click()
     
@@ -390,7 +393,8 @@ const handleTextSubmit = async () => {
   try {
     const timestamp = new Date().getTime()
     const blob = new Blob([inputText.value], { type: 'text/plain' })
-    const file = new File([blob], `text_${timestamp}.txt`, { type: 'text/plain' })
+    // const file = new File([blob], `text_${timestamp}.txt`, { type: 'text/plain' })
+    const file = new File([blob], `text.txt`, { type: 'text/plain' })
     const formData = new FormData()
     formData.append('file', file)
 
