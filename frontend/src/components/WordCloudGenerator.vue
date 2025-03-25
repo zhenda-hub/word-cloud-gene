@@ -388,8 +388,9 @@ const handleTextSubmit = async () => {
 
   isSubmitting.value = true
   try {
+    const timestamp = new Date().getTime()
     const blob = new Blob([inputText.value], { type: 'text/plain' })
-    const file = new File([blob], 'text.txt', { type: 'text/plain' })
+    const file = new File([blob], `text_${timestamp}.txt`, { type: 'text/plain' })
     const formData = new FormData()
     formData.append('file', file)
 
