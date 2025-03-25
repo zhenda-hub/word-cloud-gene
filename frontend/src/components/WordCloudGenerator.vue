@@ -39,7 +39,7 @@
 
             <!-- 上传区域 -->
             <div class="upload-section">
-              <el-tabs type="border-card">
+              <el-tabs v-model="activeTab" type="border-card">
                 <el-tab-pane label="文件上传" name="upload">
                   <el-upload
                     class="upload-area"
@@ -214,6 +214,7 @@ import { ElMessage } from 'element-plus'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL
+const activeTab = ref('upload')
 const inputText = ref('')
 const isSubmitting = ref(false)
 const filterStatus = ref('')
