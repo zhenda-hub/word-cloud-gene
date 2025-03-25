@@ -42,7 +42,7 @@
               <el-input
                 v-model="stopWords"
                 type="text"
-                placeholder="输入要忽略的词，用逗号分隔"
+                placeholder="输入要忽略的词，用英文逗号分隔"
               />
             </el-form-item>
 
@@ -306,18 +306,6 @@ onMounted(() => {
 
 // 上传前验证
 const beforeUpload = (file) => {
-  const validTypes = [
-    'text/plain',
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ]
-  
-  if (!validTypes.includes(file.type)) {
-    ElMessage.error('只支持 txt、doc、docx、pdf 格式文件！')
-    return false
-  }
-  
   const maxSize = 10 * 1024 * 1024 // 10MB
   if (file.size > maxSize) {
     ElMessage.error('文件大小不能超过 10MB！')
