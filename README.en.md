@@ -14,10 +14,12 @@ An online word cloud generation service based on Vue3 + FastAPI + Redis + Celery
 ## 🎯 Examples
 
 ### Interface Preview
-![Word Cloud Generator Interface](https://via.placeholder.com/800x400?text=WordCloud+Generator+Interface)
 
-### Generated Results
-![Word Cloud Example](https://via.placeholder.com/400x200?text=WordCloud+Example)
+![ui](./images/ui.png)
+![api](./images/api.png)
+![项目列表](./images/list.png)
+![中文词云图](./images/chinese.png)
+![英文词云图](./images/english.png)
 
 ## 🚀 Quick Start
 

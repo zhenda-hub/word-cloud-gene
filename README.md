@@ -1,5 +1,10 @@
 # 词云图生成器
 
+[English](./README.en.md)
+
+[English README](./README.en.md)
+
+
 基于 Vue3 + FastAPI + Redis + Celery 的在线词云图生成服务
 
 ## ✨ 特性
@@ -14,10 +19,12 @@
 ## 🎯 示例
 
 ### 界面预览
-![词云生成器界面](https://via.placeholder.com/800x400?text=WordCloud+Generator+Interface)
 
-### 生成效果
-![词云图示例](https://via.placeholder.com/400x200?text=WordCloud+Example)
+![ui](./images/ui.png)
+![api](./images/api.png)
+![项目列表](./images/list.png)
+![中文词云图](./images/chinese.png)
+![英文词云图](./images/english.png)
 
 ## 🚀 快速开始
 
