@@ -1,7 +1,5 @@
 # 词云图生成器
 
-[English](./README.en.md)
-
 [English README](./README.en.md)
 
 
