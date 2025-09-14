@@ -14,12 +14,16 @@ An online word cloud generation service based on Vue3 + FastAPI + Redis + Celery
 ## 🎯 Examples
 
 ### Interface Preview
-
 ![ui](./images/ui.png)
+### api
 ![api](./images/api.png)
+### list
 ![项目列表](./images/list.png)
+### chinese word cloud
 ![中文词云图](./images/chinese.png)
+### english word cloud
 ![英文词云图](./images/english.png)
+
 
 ## 🚀 Quick Start
 
