@@ -26,10 +26,15 @@ MAX_FILE_SIZE = 1024 * 1024 * 1024
 
 @app.post("/api/upload")
 async def upload_file(
-    file: UploadFile = File(..., max_length=MAX_FILE_SIZE),
+    file: UploadFile = File(...),
     stop_words: str = Form(default="")
 ):
     try:
+        # 检查文件大小
+        content = await file.read()
+        if len(content) > MAX_FILE_SIZE:
+            return {"error": f"文件大小超过限制（{MAX_FILE_SIZE / 1024 / 1024:.0f}MB）"}
+            
         # 确保上传目录存在
         os.makedirs(settings.UPLOAD_FOLDER, exist_ok=True)
         
@@ -42,7 +47,6 @@ async def upload_file(
         # 保存文件
         file_path = os.path.join(settings.UPLOAD_FOLDER, timestamped_filename)
         with open(file_path, "wb") as buffer:
-            content = await file.read()
             buffer.write(content)
             
         # 创建词云生成任务
